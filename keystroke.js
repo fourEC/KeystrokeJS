@@ -12,7 +12,7 @@ function KeystrokeData () {
 	this.trigraphDUTime = [];
 	this.trigraphDDTime = [];
 	//arrays holding list of mono,di and trigraphs
-    this.monograph = [];
+    this.monograph = [];//only 3 arrays should be here.
 	this.digraphUU = [];
 	this.digraphUD = [];
 	this.digraphDU = [];
@@ -21,6 +21,8 @@ function KeystrokeData () {
 	this.trigraphUD = [];
 	this.trigraphDU = [];
 	this.trigraphDD = [];
+	//raw events and times
+	this.raw=[];
 }
 
 //member functions of KeystrokeData
