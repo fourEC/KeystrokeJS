@@ -1,70 +1,6 @@
-//Constructor defining KeystrokeData object structure
-function KeystrokeData () 
-{
-    this.text = ''; //the typed text
-    //arrays holding timestamp
-    this.monographTime = []; 
-	this.digraphUUTime = [];
-	this.digraphUDTime = [];
-	this.digraphDUTime = [];
-	this.digraphDDTime = [];
-	this.trigraphUUTime = [];
-	this.trigraphUDTime = [];
-	this.trigraphDUTime = [];
-	this.trigraphDDTime = [];
-	//arrays holding list of mono,di and trigraphs
-    this.monograph = [];//only 3 arrays should be here.
-	//to access the monographs simply extend the . to monographTimes.list
-    
-	//raw and pure events and times
-	this.raw=[];
-    this.pure=[];
-}
-//member functions of KeystrokeData
-KeystrokeData.prototype = {
-    constructor: KeystrokeData,
-    //input functions
-    listen:function(textFieldID){
-    	//add keyup and keydown listeners here
-    	$('#'+textFieldID).keyup(function(event){
-    		this.monograph.push(event.which);
-    		this.monographTime.push(event.timeStamp);
-    	})
-    	.keydown(function(event){
-    		this.monographTime.push(event.timeStamp);
-    	});
-    },
-    trainModelFromField:function(elementID,algorithm){},
-    trainModelFromFile:function(datasetFilepath){},
-    loadModelFromFile:function(filepath){},
-    //output functions
-    saveModelToFile:function(){},
-    getDataToCSV:function(){},
-    getJSON:function(){},
-    printStats:function(){},
-    //utility functions
-    testModel:function(){},
-    setSecurityToField:function(elementID){},
-    //algorithmic functions
-    arrayDisorder:function(trained,input){},
-    neuralNetwork:function(trained,input){}
-}
-
-//sample usage
-var myKeystrokeData = new KeystrokeData();
-myKeystrokeData.trainModelFromField('textFieldID','arrayDisorder');
-myKeystrokeData.testModel();
-console.log(myKeystrokeData.text);
-myKeystrokeData.printStats();
-
-var hello= new KeystrokeData();
-hello.listen('target');
-
-
 /*
 PART 1 JS
 */
-
 /*
 Keys on which keypress is not triggered but keydown and keyup are: Alt,RClick,Tab,Caps Lock,Ctrl,Shift,Backspace,Esc,Delete
 fn and f1-12 : Only keydown event is trigerred.
@@ -73,7 +9,8 @@ not present in the text.
 There is some lag in keypress and keydown so keydown will be registered. Keypress s used only for having then correct code.
 For example look into keystroke.html in current folder
 */
-var downstrokes=0,upstrokes=0,timings=[];
+// NECESSARY FUNCTIONS & VARIABLES TO BE USED AHEAD
+var downstrokes=0,upstrokes=0;
 function strokes(code,type,time)
 {
     this.code=code;
@@ -82,13 +19,14 @@ function strokes(code,type,time)
 }
 //prev_down,prev_press,next_press,next_up  are four functions which each take 2 arguments [i,check] i: current index & check: true/false
 //according to whether to find the key(down,press,up) of corresponding keycode(true) of irrespective of keycode(false)
+//Helper Functions
 function prev_down(i,check)
 {
     for(var k=i-1;k>=0;k--)
     {
-        if (timings[k].type=="keydown") 
+        if (this.raw[k].type=="keydown") 
         {   
-            if (timings[i].code==timings[k].code && check==true) 
+            if (this.raw[i].code==this.raw[k].code && check==true) 
             {
                 return k;
             }
@@ -100,11 +38,11 @@ function prev_down(i,check)
 }
 function next_down (i,check) 
 {
-    for(var k=i+1;k<timings.length;k++)
+    for(var k=i+1;k<this.raw.length;k++)
     {
-        if (timings[k].type=="keydown") 
+        if (this.raw[k].type=="keydown") 
         {
-            if (timings[i].code==timings[k].code && check==true ) 
+            if (this.raw[i].code==this.raw[k].code && check==true ) 
             {
                 return k;
             }
@@ -118,9 +56,9 @@ function prev_press (i,check)
 {
     for(var k=i-1;k>=0;k--)
     {
-        if (timings[k].type=="keypress") 
+        if (this.raw[k].type=="keypress") 
         {
-            if (timings[i].code==timings[k].code && check==true ) 
+            if (this.raw[i].code==this.raw[k].code && check==true ) 
             {
                 return k;
             }
@@ -132,11 +70,11 @@ function prev_press (i,check)
 }
 function next_press (i,check)
 {
-    for(var k=i+1;k<timings.length;k++)
+    for(var k=i+1;k<this.raw.length;k++)
     {
-        if (timings[k].type=="keypress") 
+        if (this.raw[k].type=="keypress") 
         {
-            if (timings[i].code==timings[k].code && check==true ) 
+            if (this.raw[i].code==this.raw[k].code && check==true ) 
             {
                 return k;
             }
@@ -146,13 +84,13 @@ function next_press (i,check)
     }
     
 }
-function prev_up(i,check)
+function prev_up (i,check)
 {
     for(var k=i-1;k>=0;k--)
     {
-        if (timings[k].type=="keyup") 
+        if (this.raw[k].type=="keyup") 
         {   
-            if (timings[i].code==timings[k].code && check==true) 
+            if (this.raw[i].code==this.raw[k].code && check==true) 
             {
                 return k;
             }
@@ -164,11 +102,11 @@ function prev_up(i,check)
 
 function next_up (i,check) 
 {
-    for(var k=i+1;k<timings.length;k++)
+    for(var k=i+1;k<this.raw.length;k++)
     {
-        if (timings[k].type=="keyup") 
+        if (this.raw[k].type=="keyup") 
         {
-            if (timings[i].code==timings[k].code && check==true ) 
+            if (this.raw[i].code==this.raw[k].code && check==true ) 
             {
                 return k;
             }
@@ -178,20 +116,21 @@ function next_up (i,check)
     }
     
 }
-//cleanup() is performed to cleanup the pure timings to form the raw timings by deleting the keypresses and Backspace keys.
+
+//cleanup() is performed to cleanup the pure this.raw to form the raw this.raw by deleting the keypresses and Backspace keys.
 function cleanup () 
 {
-        //modifying the timings array to eliminate the keypress and have correct codes.
-    for (var i = 0; i < timings.length; i++) 
+        //modifying the this.raw array to eliminate the keypress and have correct codes.
+    for (var i = 0; i < this.raw.length; i++) 
     {   
-        if(timings[i].type=="keypress")
+        if(this.raw[i].type=="keypress")
         {
-            if(timings[i].code!=timings[prev_down(i,true)].code)
+            if(this.raw[i].code!=this.raw[prev_down(i,true)].code)
             {
                 //change both prevkeydown and nextkeyup.
-                timings[prev_down(i,true)].code=timings[i].code;
-                timings[next_up(i,true)].code=timings[i].code;
-                timings.splice(i);
+                this.raw[prev_down(i,true)].code=this.raw[i].code;
+                this.raw[next_up(i,true)].code=this.raw[i].code;
+                this.raw.splice(i);
 
             }
             //else nothing happens
@@ -200,77 +139,35 @@ function cleanup ()
     //discard all those threshold values;
 
     //execute Backspace and Delete events.
-    for (var i = 0; i < timings.length; i++) 
+    for (var i = 0; i < this.raw.length; i++) 
     {   
-        if(timings[i].code==8 && timings[i].type=="keydown")
+        if(this.raw[i].code==8 && this.raw[i].type=="keydown")
         {   
-            timings.splice(prev_down(i,false));
-            timings.splice(next_up(i,false));
-            timings.splice(i);
-            timings.splice(next_up(i,true));
+            this.raw.splice(prev_down(i,false));
+            this.raw.splice(next_up(i,false));
+            this.raw.splice(i);
+            this.raw.splice(next_up(i,true));
         }
         
     }
     //delete all the BAD values
-    for (var i = 0; i < timings.length; i++) 
+    for (var i = 0; i < this.raw.length; i++) 
     {   
-        if (timings[i].code==9 || timings[i].code==13 || timings[i].code==17 || timings[i].code==18 || timings[i].code==19 || timings[i].code==27 || timings[i].code==33 
-            || timings[i].code==34 || timings[i].code==35 || timings[i].code==36 || timings[i].code==37 || timings[i].code==38 || timings[i].code==39 || timings[i].code==40
-            || timings[i].code==45 || timings[i].code==93 || timings[i].code==144 || timings[i].code==145 || timings[i].code==46 ) 
+        if (this.raw[i].code==9 || this.raw[i].code==13 || this.raw[i].code==17 || this.raw[i].code==18 || this.raw[i].code==19 || this.raw[i].code==27 || this.raw[i].code==33 
+            || this.raw[i].code==34 || this.raw[i].code==35 || this.raw[i].code==36 || this.raw[i].code==37 || this.raw[i].code==38 || this.raw[i].code==39 || this.raw[i].code==40
+            || this.raw[i].code==45 || this.raw[i].code==93 || this.raw[i].code==144 || this.raw[i].code==145 || this.raw[i].code==46 ) 
         {
-            timings.splice(i);
-            timings.splice(next_up(i,true));
+            this.raw.splice(i);
+            this.raw.splice(next_up(i,true));
         }
     }
 }
-function listen (identity) 
-{   
-        $('#' + identity).keyup(function(event)
-                                          {
-                                            //Enter
-                                            if(event.which != 13)
-                                            {
-                                            upstrokes++;                                            
-                                            timings.push(new strokes(event.which,"keyup",event.timeStamp)); 
-                                            }  
-                                            else{}                                     
-                                          })
-                  .keydown(function( event){
-                                            //Enter
-                                            if ( event.which == 13 ) 
-                                            {
-                                              event.preventDefault();
-                                              cleanup();
-                                              
-                                            }
-                                            //other than Enter
-                                            else
-                                            {
-                                              downstrokes++;                                               
-                                              timings.push(new strokes(event.which,"keydown",event.timeStamp));
-                                            }
-                                            
-                                          })
-                    .keypress(function( event){
-                                              timings.push(new strokes(event.which,"keypress",event.timeStamp));            
-                                            
-                                          }); 
-}
 
 /*
-Part 2.js calculating all the monographs and diagraphs from the raw timinings.
+Part 2.js calculating all the monographs and this.digraphs from the raw timinings.
 
 */
-var monographTimes=[];
-var digraphUUTimes = [];
-var digraphUDTimes = [];
-var digraphDUTimes = [];
-var digraphDDTimes = [];
-var trigraphUUTimes = [];
-var trigraphUDTimes = [];
-var trigraphDUTimes = [];
-var trigraphDDTimes = [];
-
+//HELPER FUNCTIONS
 function exists(arr, elem) 
 {
     for (var x = 0; x < arr.length; x++) {
@@ -287,97 +184,266 @@ function n_graph (character,duration)
     this.duration=duration;
 }
 
-//populating monographTimes
-for (var i = 0; i <= prev_down(timings.length,false); i++) 
+//functions of Part2.js
+
+
+function populate () 
 {
-    if (timings[i].type=="keydown") 
+    //populating monographTimes
+    for (var i = 0; i <= prev_down(this.raw.length,false); i++) 
     {
-        var existence=exists(monographTimes,timings[i].code);
-        if( existence != -1)
+        if (this.raw[i].type=="keydown") 
         {
-            monographTimes[existence]=((monographTimes[existence]*monographTimes.length)+timings[next_up(i,true)].time-timings[i].time)/(monographTimes.length+1);
+            var existence=exists(this.monographTimes,this.raw[i].code);
+            if( existence != -1)
+            {
+                this.monographTimes[existence]=((this.monographTimes[existence]*this.monographTimes.length)+this.raw[next_up(i,true)].time-this.raw[i].time)/(this.monographTimes.length+1);
+            }
+            else
+            this.monographTimes.push(new n_graph(this.raw[i].keycode,this.raw[next_up(i,true)].time-this.raw[i].time));
+        }   
+    }
+
+    //populating digraphUUTimes
+    for(var i=0;i <= prev_down(prev_down(this.raw.length,false),false);i++)
+    {
+        if(this.raw[i].type="keydown")
+        {
+
+            var character=String.fromCharCode(this.raw[i].code,this.raw[next_down(i,false)].code);
+            var existence=exists(this.digraphUUTimes,character);
+            var duration= this.raw[next_up(next_down(i,false),true)].time -this.raw[next_up(i,true)].time;
+            if(existence!= -1)
+            {
+                this.digraphUUTimes[existence]=((this.digraphUUTimes[existence]*this.digraphUUTimes.length)+duration)/(this.digraphUUTimes.length+1);
+            }
+            else
+            {
+                this.digraphUUTimes.push(new n_graph(character,duration);
+            }
         }
-        else
-        monographTimes.push(new n_graph(timings[i].keycode,timings[next_up(i,true)].time-timings[i].time));
+    }
+
+    //populating digraphUDTimes
+    for(var i=0;i <= prev_down(prev_down(this.raw.length,false),false);i++)
+    {
+        if(this.raw[i].type="keydown")
+        {
+
+            var character=String.fromCharCode(this.raw[i].code,this.raw[next_down(i,false)].code);
+            var existence=exists(this.digraphUUTimes,character);
+            var duration= this.raw[next_up(next_down(i,false),true)].time -this.raw[i].time;//2rp
+            if(existence!= -1)
+            {
+                this.digraphUUTimes[existence]=((this.digraphUUTimes[existence]*this.digraphUUTimes.length)+duration)/(this.digraphUUTimes.length+1);
+            }
+            else
+            {
+                this.digraphUUTimes.push(new n_graph(character,duration);
+            }
+        }
+    }
+
+    //populating digraphDUTimes
+    for(var i=0;i <= prev_down(prev_down(this.raw.length,false),false);i++)
+    {
+        if(this.raw[i].type="keydown")
+        {
+
+            var character=String.fromCharCode(this.raw[i].code,this.raw[next_down(i,false)].code);
+            var existence=exists(this.digraphUUTimes,character);
+            var duration= this.raw[next_down(i,false)].time - this.raw[next_up(i,true)].time;//2pr
+            if(existence!= -1)
+            {
+                this.digraphUUTimes[existence]=((this.digraphUUTimes[existence]*this.digraphUUTimes.length)+duration)/(this.digraphUUTimes.length+1);
+            }
+            else
+            {
+                this.digraphUUTimes.push(new n_graph(character,duration);
+            }
+        }
+    }
+
+    //populating digraphDDTimes
+    for(var i=0;i <= prev_down(prev_down(this.raw.length,false),false);i++)
+    {
+        if(this.raw[i].type="keydown")
+        {
+
+            var character=String.fromCharCode(this.raw[i].code,this.raw[next_down(i,false)].code);
+            var existence=exists(this.digraphUUTimes,character);
+            var duration= this.raw[next_down(i,false)].time - this.raw[i].time;//2pp
+            if(existence!= -1)
+            {
+                this.digraphUUTimes[existence]=((this.digraphUUTimes[existence]*this.digraphUUTimes.length)+duration)/(this.digraphUUTimes.length+1);
+            }
+            else
+            {
+                this.digraphUUTimes.push(new n_graph(character,duration);
+            }
+        }
     }   
 }
 
-//populating diagraphUUTimes
-for(var i=0;i <= prev_down(prev_down(timings.length,false),false);i++)
-{
-    if(timings[i].type="keydown")
-    {
 
-        var character=String.fromCharCode(timings[i].code,timings[next_down(i,false)].code);
-        var existence=exists(diagraphUUTimes,character);
-        var duration= timings[next_up(next_down(i,false),true)].time -timings[next_up(i,true)].time;
-        if(existence!= -1)
+//Constructor defining KeystrokeData object structure
+function KeystrokeData () 
+{
+    this.inputtext = ''; //the typed text
+    //arrays holding timestamp
+    this.monographTimes = []; 
+	this.digraphUUTimes = [];
+	this.digraphUDTimes = [];
+	this.digraphDUTimes = [];
+	this.digraphDDTimes = [];
+	this.trigraphUUTimes = [];
+	this.trigraphUDTimes = [];
+	this.trigraphDUTimes = [];
+	this.trigraphDDTimes = [];
+	//arrays holding list of mono,di and trigraphs
+    this.monograph = [];//only 3 arrays should be here.
+	//to access the monographs simply extend the . to monographTimes.list
+    
+	//raw and pure events and times
+	this.raw=[];
+    this.pure=[];
+}
+//member functions of KeystrokeData
+KeystrokeData.prototype = {
+    constructor: KeystrokeData,
+    //input functions
+    listen:function (identity) 
+                    {   
+                            $('#' + identity).keyup(function(event)
+                                                              {
+                                                                //Enter
+                                                                if(event.which != 13)
+                                                                {
+                                                                upstrokes++;                                            
+                                                                this.pure.push(new strokes(event.which,"keyup",event.timeStamp));
+                                                                this.raw.push(new strokes(event.which,"keyup",event.timeStamp)); 
+                                                                }  
+                                                                else{}                                     
+                                                              })
+                                      .keydown(function( event){
+                                                                //Enter
+                                                                if ( event.which == 13 ) 
+                                                                {
+                                                                  event.preventDefault();
+                                                                  cleanup();
+                                                                  
+                                                                }
+                                                                //other than Enter
+                                                                else
+                                                                {
+                                                                  downstrokes++;                                               
+                                                                  this.pure.push(new strokes(event.which,"keydown",event.timeStamp));
+                                                                  this.raw.push(new strokes(event.which,"keydown",event.timeStamp));
+                                                                }
+                                                                
+                                                              })
+                                        .keypress(function( event){
+                                                                  this.pure.push(new strokes(event.which,"keypress",event.timeStamp));
+                                                                  this.raw.push(new strokes(event.which,"keypress",event.timeStamp));            
+                                                                
+                                                              }); 
+                    },
+    trainModelFromField:function(elementID,algorithm){},
+    trainModelFromFile:function(datasetFilepath){},
+    loadModelFromFile:function(filepath){},
+    //output functions
+    saveModelToFile:function(){},
+    getDataToCSV:function(){},
+    getJSON:function(){},
+    printStats:function(){},
+    //utility functions
+    testModel:function(){},
+    setSecurityToField:function(elementID){},
+    //algorithmic functions
+    arrayDisorder:function(trained,input){},
+    neuralNetwork:function(trained,input){},
+    
+    //PROVIDER FUNCTIONS
+    /*
+        get_ngraph usage :
+        var value;
+        value=hello.get_ngraph();  
+        value=hello.get_ngraph('monograph'); value.monograph is an array of objects where each is character,duration
+        value=hello.get_ngraph('digraph'); value.digraph["UUT"] is an array of objects where each is character,duration
+        value=hello.get_ngraph('trigraph'); 
+    */
+    get_ngraph:function()
+    {
+        var result;
+        if(arguments.length==0)
         {
-            diagraphUUTimes[existence]=((diagraphUUTimes[existence]*diagraphUUTimes.length)+duration)/(diagraphUUTimes.length+1);
+            result.monograph=this.monographTimes;
+            result.digraph=[];
+            result.digraph.push({UUT:this.digraphUUTimes});
+            result.digraph.push({UDT:this.digraphUDTimes});
+            result.digraph.push({DUT:this.digraphDUTimes});
+            result.digraph.push({DDT:this.digraphDDTimes});
+            result.trigraph=[];
+            result.trigraph.push({UUT:this.trigraphUUTimes});
+            result.trigraph.push({UDT:this.trigraphUDTimes});
+            result.trigraph.push({DUT:this.trigraphDUTimes});
+            result.trigraph.push({DDT:this.trigraphDDTimes});
         }
         else
         {
-            diagraphUUTimes.push(new n_graph(character,duration);
+            for (var i = 0; i < arguments.length; i++) 
+                {
+                 if(arguments[i]=="monograph")
+                 {
+                    result.monograph=this.monographTimes;
+                 } 
+                 else if(arguments[i]=="digraph")
+                 {
+                    result.digraph=[];
+                    result.digraph.push({UUT:this.digraphUUTimes});
+                    result.digraph.push({UDT:this.digraphUDTimes});
+                    result.digraph.push({DUT:this.digraphDUTimes});
+                    result.digraph.push({DDT:this.digraphDDTimes});
+                 }
+                 else if(arguments[i]=="trigraph")
+                 {
+                    result.trigraph=[];
+                    result.trigraph.push({UUT:this.trigraphUUTimes});
+                    result.trigraph.push({UDT:this.trigraphUDTimes});
+                    result.trigraph.push({DUT:this.trigraphDUTimes});
+                    result.trigraph.push({DDT:this.trigraphDDTimes});
+                 }
+                }
         }
-    }
-}
-
-//populating diagraphUDTimes
-for(var i=0;i <= prev_down(prev_down(timings.length,false),false);i++)
-{
-    if(timings[i].type="keydown")
+        
+        return result; 
+    },
+    get_raw_timings:function()
     {
-
-        var character=String.fromCharCode(timings[i].code,timings[next_down(i,false)].code);
-        var existence=exists(diagraphUUTimes,character);
-        var duration= timings[next_up(next_down(i,false),true)].time -timings[i].time;//2rp
-        if(existence!= -1)
-        {
-            diagraphUUTimes[existence]=((diagraphUUTimes[existence]*diagraphUUTimes.length)+duration)/(diagraphUUTimes.length+1);
-        }
-        else
-        {
-            diagraphUUTimes.push(new n_graph(character,duration);
-        }
-    }
-}
-
-//populating diagraphDUTimes
-for(var i=0;i <= prev_down(prev_down(timings.length,false),false);i++)
-{
-    if(timings[i].type="keydown")
+        return this.raw;
+    },
+    get_pure_timings:function()
     {
-
-        var character=String.fromCharCode(timings[i].code,timings[next_down(i,false)].code);
-        var existence=exists(diagraphUUTimes,character);
-        var duration= timings[next_down(i,false)].time - timings[next_up(i,true)].time;//2pr
-        if(existence!= -1)
-        {
-            diagraphUUTimes[existence]=((diagraphUUTimes[existence]*diagraphUUTimes.length)+duration)/(diagraphUUTimes.length+1);
-        }
-        else
-        {
-            diagraphUUTimes.push(new n_graph(character,duration);
-        }
-    }
-}
-
-//populating diagraphDDTimes
-for(var i=0;i <= prev_down(prev_down(timings.length,false),false);i++)
-{
-    if(timings[i].type="keydown")
+        return this.pure;
+    },
+    get_input_text:function()
     {
+        return this.inputtext;
+    },
 
-        var character=String.fromCharCode(timings[i].code,timings[next_down(i,false)].code);
-        var existence=exists(diagraphUUTimes,character);
-        var duration= timings[next_down(i,false)].time - timings[i].time;//2pp
-        if(existence!= -1)
-        {
-            diagraphUUTimes[existence]=((diagraphUUTimes[existence]*diagraphUUTimes.length)+duration)/(diagraphUUTimes.length+1);
-        }
-        else
-        {
-            diagraphUUTimes.push(new n_graph(character,duration);
-        }
-    }
+
 }
+
+//sample usage
+var myKeystrokeData = new KeystrokeData();
+myKeystrokeData.trainModelFromField('textFieldID','arrayDisorder');
+myKeystrokeData.testModel();
+console.log(myKeystrokeData.text);
+myKeystrokeData.printStats();
+
+var hello= new KeystrokeData();
+hello.listen('target');
+var list=hello.get_ngraph();
+
+
+
