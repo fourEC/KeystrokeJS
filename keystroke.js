@@ -1,25 +1,27 @@
-/*
-PART 1 JS
-*/
-/*
-Keys on which keypress is not triggered but keydown and keyup are: Alt,RClick,Tab,Caps Lock,Ctrl,Shift,Backspace,Esc,Delete
-fn and f1-12 : Only keydown event is trigerred.
-Keydown is always succeeded by a keypress event other than those listed above. Or if keypress does not appear then those keys are 
-not present in the text.
-There is some lag in keypress and keydown so keydown will be registered. Keypress s used only for having then correct code.
-For example look into keystroke.html in current folder
-*/
-// NECESSARY FUNCTIONS & VARIABLES TO BE USED AHEAD
+/***************************************************
+                  Keystroke.js
+                        
+    This is the pre-alpha v-0.0.1 of Keystroke.js
+    by Event Horizon(bezoar17,fourEC)
+****************************************************/
+// FUNCTIONS & VARIABLES TO BE USED AHEAD
 var downstrokes=0,upstrokes=0;
+//OBJECT CREATING FUNCTIONS
 function strokes(code,type,time)
 {
     this.code=code;
     this.type=type;
     this.time=time;
 }
+function n_graph (character,duration) 
+{
+    this.character=character;
+    this.duration=duration;
+}
+//HELPER FUNCTIONS
+
 //prev_down,prev_press,next_press,next_up  are four functions which each take 2 arguments [i,check] i: current index & check: true/false
 //according to whether to find the key(down,press,up) of corresponding keycode(true) of irrespective of keycode(false)
-//Helper Functions
 function prev_down(i,check)
 {
     for(var k=i-1;k>=0;k--)
@@ -49,8 +51,7 @@ function next_down (i,check)
             else if(check==false) 
             return k;
         }
-    }
-    
+    }    
 }
 function prev_press (i,check) 
 {
@@ -65,8 +66,7 @@ function prev_press (i,check)
             else if(check==false) 
             return k;
         }
-    }
-    
+    }    
 }
 function next_press (i,check)
 {
@@ -81,8 +81,7 @@ function next_press (i,check)
             else if(check==false)
             return k;
         }
-    }
-    
+    }    
 }
 function prev_up (i,check)
 {
@@ -99,7 +98,6 @@ function prev_up (i,check)
             
         }
     }
-
 function next_up (i,check) 
 {
     for(var k=i+1;k<this.raw.length;k++)
@@ -113,13 +111,22 @@ function next_up (i,check)
             else if(check==false) 
             return k;
         }
+    }    
+}
+//checks is object exists already or not
+function exists(arr, elem) 
+{
+    for (var x = 0; x < arr.length; x++) {
+        if (arr[x].character == elem) {
+            return x; //returning index if element found
+        }
     }
-    
+    return -1;//returning -1 if element not found
 }
 
 //cleanup() is performed to cleanup the pure this.raw to form the raw this.raw by deleting the keypresses and Backspace keys.
 function cleanup () 
-{
+  {
         //modifying the this.raw array to eliminate the keypress and have correct codes.
     for (var i = 0; i < this.raw.length; i++) 
     {   
@@ -138,7 +145,7 @@ function cleanup ()
     }
     //discard all those threshold values;
 
-    //execute Backspace and Delete events.
+    //execute Backspace deletion.
     for (var i = 0; i < this.raw.length; i++) 
     {   
         if(this.raw[i].code==8 && this.raw[i].type=="keydown")
@@ -161,32 +168,8 @@ function cleanup ()
             this.raw.splice(next_up(i,true));
         }
     }
-}
-
-/*
-Part 2.js calculating all the monographs and this.digraphs from the raw timinings.
-
-*/
-//HELPER FUNCTIONS
-function exists(arr, elem) 
-{
-    for (var x = 0; x < arr.length; x++) {
-        if (arr[x].character == elem) {
-            return x; //returning index if element found
-        }
-    }
-    return -1;//returning -1 if element not found
-}
-
-function n_graph (character,duration) 
-{
-    this.character=character;
-    this.duration=duration;
-}
-
-//functions of Part2.js
-
-
+  }
+//populate() extracts n-graph timings from the raw timings
 function populate () 
 {
     //populating monographTimes
@@ -282,71 +265,69 @@ function populate ()
                 this.digraphUUTimes.push(new n_graph(character,duration);
             }
         }
-    }   
+    }       
 }
-
-
-//Constructor defining KeystrokeData object structure
-function KeystrokeData () 
+//Constructor defining Keystroke object structure
+function Keystroke () 
 {
     this.inputtext = ''; //the typed text
     //arrays holding timestamp
     this.monographTimes = []; 
-	this.digraphUUTimes = [];
-	this.digraphUDTimes = [];
-	this.digraphDUTimes = [];
-	this.digraphDDTimes = [];
-	this.trigraphUUTimes = [];
-	this.trigraphUDTimes = [];
-	this.trigraphDUTimes = [];
-	this.trigraphDDTimes = [];
-	//arrays holding list of mono,di and trigraphs
-    this.monograph = [];//only 3 arrays should be here.
-	//to access the monographs simply extend the . to monographTimes.list
-    
-	//raw and pure events and times
-	this.raw=[];
+    this.digraphUUTimes = [];
+    this.digraphUDTimes = [];
+    this.digraphDUTimes = [];
+    this.digraphDDTimes = [];
+    this.trigraphUUTimes = [];
+    this.trigraphUDTimes = [];
+    this.trigraphDUTimes = [];
+    this.trigraphDDTimes = [];  
+    //raw and pure events and times
+    this.raw=[];
     this.pure=[];
 }
-//member functions of KeystrokeData
-KeystrokeData.prototype = {
-    constructor: KeystrokeData,
+//member functions of Keystroke
+Keystroke.prototype = {
+    constructor: Keystroke,
     //input functions
-    listen:function (identity) 
+    listen:function (identity)                  
                     {   
-                            $('#' + identity).keyup(function(event)
-                                                              {
-                                                                //Enter
-                                                                if(event.which != 13)
-                                                                {
-                                                                upstrokes++;                                            
-                                                                this.pure.push(new strokes(event.which,"keyup",event.timeStamp));
-                                                                this.raw.push(new strokes(event.which,"keyup",event.timeStamp)); 
-                                                                }  
-                                                                else{}                                     
-                                                              })
-                                      .keydown(function( event){
-                                                                //Enter
-                                                                if ( event.which == 13 ) 
-                                                                {
-                                                                  event.preventDefault();
-                                                                  cleanup();
-                                                                  
-                                                                }
-                                                                //other than Enter
-                                                                else
-                                                                {
-                                                                  downstrokes++;                                               
-                                                                  this.pure.push(new strokes(event.which,"keydown",event.timeStamp));
-                                                                  this.raw.push(new strokes(event.which,"keydown",event.timeStamp));
-                                                                }
-                                                                
-                                                              })
-                                        .keypress(function( event){
-                                                                  this.pure.push(new strokes(event.which,"keypress",event.timeStamp));
-                                                                  this.raw.push(new strokes(event.which,"keypress",event.timeStamp));            
-                                                                
-                                                              }); 
+                        $('#' + identity).keyup(function(event)
+                                                          {
+                                                            //Enter
+                                                            if(event.which != 13)
+                                                            {
+                                                            upstrokes++;                                            
+                                                            this.pure.push(new strokes(event.which,"keyup",event.timeStamp));
+                                                            this.raw.push(new strokes(event.which,"keyup",event.timeStamp)); 
+                                                            }  
+                                                            else
+                                                            {
+
+                                                            }                                     
+                                                          })
+                                         .keydown(function(event)
+                                                          {
+                                                            //Enter
+                                                            if ( event.which == 13 ) 
+                                                            {
+                                                              event.preventDefault();
+                                                              this.inputtext=this.inputtext+"~~~~~"+$('#' + identity).val();                                                                                                                            
+                                                            }
+                                                            //other than Enter
+                                                            else
+                                                            {
+                                                              downstrokes++;                                               
+                                                              this.pure.push(new strokes(event.which,"keydown",event.timeStamp));
+                                                              this.raw.push(new strokes(event.which,"keydown",event.timeStamp));
+                                                            }
+                                                            
+                                                          })
+                                         .keypress(function( event)
+                                                          {
+                                                              this.pure.push(new strokes(event.which,"keypress",event.timeStamp));
+                                                              this.raw.push(new strokes(event.which,"keypress",event.timeStamp));            
+                                                            
+                                                          }); 
                     },
     trainModelFromField:function(elementID,algorithm){},
     trainModelFromFile:function(datasetFilepath){},
@@ -374,6 +355,7 @@ KeystrokeData.prototype = {
     */
     get_ngraph:function()
     {
+        populate();
         var result;
         if(arguments.length==0)
         {
@@ -420,6 +402,7 @@ KeystrokeData.prototype = {
     },
     get_raw_timings:function()
     {
+        cleanup();
         return this.raw;
     },
     get_pure_timings:function()
@@ -433,17 +416,3 @@ KeystrokeData.prototype = {
 
 
 }
-
-//sample usage
-var myKeystrokeData = new KeystrokeData();
-myKeystrokeData.trainModelFromField('textFieldID','arrayDisorder');
-myKeystrokeData.testModel();
-console.log(myKeystrokeData.text);
-myKeystrokeData.printStats();
-
-var hello= new KeystrokeData();
-hello.listen('target');
-var list=hello.get_ngraph();
-
-
-
