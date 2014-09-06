@@ -1,9 +1,10 @@
-/***************************************************
-                  Keystroke.js
+/***********************************************************
+                       Keystroke.js
                         
-    This is the pre-alpha v-0.0.1 of Keystroke.js
-    by Event Horizon(bezoar17,fourEC)
-****************************************************/
+        This is the pre-alpha v-0.0.1 of Keystroke.js
+                            by 
+    Event Horizon(bezoar17,fourEC,jayantabh,SatwikPrabhuK)
+************************************************************/
 // FUNCTIONS & VARIABLES TO BE USED AHEAD
 var downstrokes=0,upstrokes=0;
 //OBJECT CREATING FUNCTIONS
@@ -123,7 +124,6 @@ function exists(arr, elem)
     }
     return -1;//returning -1 if element not found
 }
-
 //cleanup() is performed to cleanup the pure this.raw to form the raw this.raw by deleting the keypresses and Backspace keys.
 function cleanup () 
   {
@@ -286,7 +286,8 @@ function Keystroke ()
     this.pure=[];
 }
 //member functions of Keystroke
-Keystroke.prototype = {
+Keystroke.prototype = 
+{
     constructor: Keystroke,
     //input functions
     listen:function (identity)                  
@@ -331,12 +332,7 @@ Keystroke.prototype = {
                     },
     trainModelFromField:function(elementID,algorithm){},
     trainModelFromFile:function(datasetFilepath){},
-    loadModelFromFile:function(filepath){},
-    //output functions
-    saveModelToFile:function(){},
-    getDataToCSV:function(){},
-    getJSON:function(){},
-    printStats:function(){},
+    loadModelFromFile:function(filepath){},    
     //utility functions
     testModel:function(){},
     setSecurityToField:function(elementID){},
@@ -413,6 +409,15 @@ Keystroke.prototype = {
     {
         return this.inputtext;
     },
-
-
+    //output functions
+    saveModelToFile:function()
+    {
+        //txt,csv
+    },
+    getJSON:function()
+    {
+        var result;        
+        result=JSON.stringify(get_ngraph.apply(null,arguments));
+        return result;
+    }
 }
