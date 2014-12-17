@@ -99,6 +99,7 @@ function prev_up (i,check)
             
         }
     }
+}
 function next_up (i,check) 
 {
     for(var k=i+1;k<this.raw.length;k++)
@@ -126,8 +127,8 @@ function exists(arr, elem)
 }
 //cleanup() is performed to cleanup the pure this.raw to form the raw this.raw by deleting the keypresses and Backspace keys.
 function cleanup () 
-  {
-        //modifying the this.raw array to eliminate the keypress and have correct codes.
+{
+    //modifying the this.raw array to eliminate the keypress and have correct codes.
     for (var i = 0; i < this.raw.length; i++) 
     {   
         if(this.raw[i].type=="keypress")
@@ -168,7 +169,7 @@ function cleanup ()
             this.raw.splice(next_up(i,true));
         }
     }
-  }
+}
 //populate() extracts n-graph timings from the raw timings
 function populate () 
 {
@@ -284,22 +285,24 @@ function Keystroke ()
     //raw and pure events and times
     this.raw=[];
     this.pure=[];
+   
 }
 //member functions of Keystroke
-Keystroke.prototype = 
-{
+Keystroke.prototype = {
     constructor: Keystroke,
     //input functions
     listen:function (identity)                  
                     {   
+                        var refer=this;
+                        console.log(identity);
                         $('#' + identity).keyup(function(event)
                                                           {
                                                             //Enter
                                                             if(event.which != 13)
                                                             {
                                                             upstrokes++;                                            
-                                                            this.pure.push(new strokes(event.which,"keyup",event.timeStamp));
-                                                            this.raw.push(new strokes(event.which,"keyup",event.timeStamp)); 
+                                                            refer.pure.push(new strokes(event.which,"keyup",event.timeStamp));
+                                                            refer.raw.push(new strokes(event.which,"keyup",event.timeStamp)); 
                                                             }  
                                                             else
                                                             {
@@ -312,22 +315,22 @@ Keystroke.prototype =
                                                             if ( event.which == 13 ) 
                                                             {
                                                               event.preventDefault();
-                                                              this.inputtext=this.inputtext+"~~~~~"+$('#' + identity).val(); 
-                                                                                                                           
+                                                              refer.inputtext=refer.inputtext+"~~~~~"+$('#' + identity).val();                                                                                                                                                                                          
+                                                              console.log(refer.raw);
                                                             }
                                                             //other than Enter
                                                             else
                                                             {
                                                               downstrokes++;                                               
-                                                              this.pure.push(new strokes(event.which,"keydown",event.timeStamp));
-                                                              this.raw.push(new strokes(event.which,"keydown",event.timeStamp));
+                                                              refer.pure.push(new strokes(event.which,"keydown",event.timeStamp));
+                                                              refer.raw.push(new strokes(event.which,"keydown",event.timeStamp));
                                                             }
                                                             
                                                           })
                                          .keypress(function( event)
                                                           {
-                                                              this.pure.push(new strokes(event.which,"keypress",event.timeStamp));
-                                                              this.raw.push(new strokes(event.which,"keypress",event.timeStamp));            
+                                                              refer.pure.push(new strokes(event.which,"keypress",event.timeStamp));
+                                                              refer.raw.push(new strokes(event.which,"keypress",event.timeStamp));            
                                                             
                                                           }); 
                     },
@@ -421,4 +424,4 @@ Keystroke.prototype =
         result=JSON.stringify(get_ngraph.apply(null,arguments));
         return result;
     }
-}
+};
