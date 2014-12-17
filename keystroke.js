@@ -202,7 +202,7 @@ function populate ()
             }
             else
             {
-                this.digraphUUTimes.push(new n_graph(character,duration);
+                this.digraphUUTimes.push(new n_graph(character,duration));
             }
         }
     }
@@ -222,7 +222,7 @@ function populate ()
             }
             else
             {
-                this.digraphUUTimes.push(new n_graph(character,duration);
+                this.digraphUUTimes.push(new n_graph(character,duration));
             }
         }
     }
@@ -242,7 +242,7 @@ function populate ()
             }
             else
             {
-                this.digraphUUTimes.push(new n_graph(character,duration);
+                this.digraphUUTimes.push(new n_graph(character,duration));
             }
         }
     }
@@ -262,7 +262,7 @@ function populate ()
             }
             else
             {
-                this.digraphUUTimes.push(new n_graph(character,duration);
+                this.digraphUUTimes.push(new n_graph(character,duration));
             }
         }
     }       
@@ -312,7 +312,8 @@ Keystroke.prototype =
                                                             if ( event.which == 13 ) 
                                                             {
                                                               event.preventDefault();
-                                                              this.inputtext=this.inputtext+"~~~~~"+$('#' + identity).val();                                                                                                                            
+                                                              this.inputtext=this.inputtext+"~~~~~"+$('#' + identity).val(); 
+                                                                                                                           
                                                             }
                                                             //other than Enter
                                                             else
